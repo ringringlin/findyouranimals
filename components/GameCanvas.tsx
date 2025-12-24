@@ -374,7 +374,7 @@ const createTeddyDog = () => {
     return group;
 };
 
-// --- RETRO SNOW CAR COMPONENT (FIXED MODELING) ---
+// --- RETRO SNOW CAR COMPONENT ---
 const createSnowCar = () => {
     const group = new THREE.Group();
     const bodyColor = 0xC62828; // Vintage Red
@@ -392,35 +392,26 @@ const createSnowCar = () => {
     chassis.castShadow = true;
 
     // Cabin (Top Part)
-    // Cabin center local to group is (-0.1, 1.0, 0).
     const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.6, 0.9), matBody);
     cabin.position.set(-0.1, 1.0, 0);
     cabin.castShadow = true;
 
-    // Windows (Simplified) - Fixed positions relative to cabin center (0,0,0 local)
-    // Cabin size is 1.2(x) * 0.6(y) * 0.9(z). 
-    // Faces are at x=±0.6, y=±0.3, z=±0.45.
-    
-    // Front Window (on x=+0.6 face)
+    // Windows (Simplified)
     const winFront = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.35), matWindow);
     winFront.rotation.y = Math.PI / 2;
-    winFront.position.set(0.61, 0, 0); // Slightly offset from x=0.6 face
+    winFront.position.set(0.51, 1.0, 0);
     
-    // Back Window (on x=-0.6 face)
     const winBack = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.35), matWindow);
     winBack.rotation.y = -Math.PI / 2;
-    winBack.position.set(-0.61, 0, 0); // Slightly offset from x=-0.6 face
+    winBack.position.set(-0.71, 1.0, 0);
 
-    // Left Window (on z=+0.45 face)
     const winSideL = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.35), matWindow);
-    winSideL.position.set(0, 0, 0.46); // Slightly offset from z=0.45 face
+    winSideL.position.set(-0.1, 1.0, 0.46);
     
-    // Right Window (on z=-0.45 face)
     const winSideR = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.35), matWindow);
     winSideR.rotation.y = Math.PI;
-    winSideR.position.set(0, 0, -0.46); // Slightly offset from z=-0.45 face
+    winSideR.position.set(-0.1, 1.0, -0.46);
 
-    // Add windows to CABIN group so they move with it
     cabin.add(winFront, winBack, winSideL, winSideR);
 
     // Snow Roof (Mound)
@@ -463,6 +454,8 @@ const createSnowCar = () => {
     group.add(chassis, cabin, snowRoof, snowHood, bumperF, bumperB, hlL, hlR);
     return group;
 }
+
+// --- NEW ASSET GENERATORS (ADDED TO FIX MISSING FUNCTIONS) ---
 
 const createCabin = () => {
     const group = new THREE.Group();
@@ -599,54 +592,446 @@ const createMushroom = () => {
     return group;
 };
 
-const createDecoratedTree = (scale = 1, isGrand = false) => {
+const createSantaGroup = () => {
     const group = new THREE.Group();
-    const treeColor = COLORS.tree_dark;
-    const treeMat = new THREE.MeshStandardMaterial({ color: treeColor, flatShading: true });
+    const redMat = new THREE.MeshStandardMaterial({ color: 0xD32F2F });
+    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+    const skinMat = new THREE.MeshStandardMaterial({ color: 0xFFCCBC });
     
-    // Trunk
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.15 * scale, 0.2 * scale, 0.8 * scale), new THREE.MeshStandardMaterial({ color: COLORS.wood }));
-    trunk.position.y = 0.4 * scale;
-    group.add(trunk);
-
-    // Layers
-    const layers = isGrand ? 5 : 3;
-    for(let i=0; i<layers; i++) {
-        const radius = (0.8 - i*0.15) * scale * (isGrand ? 1.5 : 1);
-        const height = 0.8 * scale * (isGrand ? 1.2 : 1);
-        const y = (0.8 + i*0.5) * scale;
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(radius, height, 8), treeMat);
-        cone.position.y = y;
-        cone.castShadow = true;
-        group.add(cone);
-        
-        // Ornaments
-        if (i < layers - 1) {
-             for(let j=0; j<4 + i; j++) {
-                 const angle = (j / (4+i)) * Math.PI * 2;
-                 const oRad = radius * 0.85;
-                 const ox = Math.cos(angle) * oRad;
-                 const oz = Math.sin(angle) * oRad;
-                 const oy = y - height * 0.35;
-                 
-                 const colors = [COLORS.ornament_red, COLORS.ornament_gold, COLORS.ornament_blue, COLORS.candy_white];
-                 const color = colors[Math.floor(Math.random() * colors.length)];
-                 const ball = new THREE.Mesh(new THREE.SphereGeometry(0.08 * scale), new THREE.MeshStandardMaterial({ color: color, roughness: 0.4, metalness: 0.6 }));
-                 ball.position.set(ox, oy, oz);
-                 group.add(ball);
-             }
-        }
-    }
+    const sleigh = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.5, 0.8), new THREE.MeshStandardMaterial({color: 0x8D6E63}));
+    sleigh.position.y = 0.25;
+    group.add(sleigh);
     
-    // Top Star
-    const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.15 * scale), new THREE.MeshBasicMaterial({ color: COLORS.gold }));
-    star.position.y = (0.8 + layers * 0.5) * scale;
-    group.add(star);
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 0.6), redMat);
+    body.position.set(0, 0.6, 0);
+    group.add(body);
+    
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.25), skinMat);
+    head.position.set(0, 1.0, 0);
+    group.add(head);
+    
+    const beard = new THREE.Mesh(new THREE.ConeGeometry(0.25, 0.4, 8), whiteMat);
+    beard.rotation.x = Math.PI;
+    beard.position.set(0, 0.85, 0.1);
+    group.add(beard);
+    
+    const hat = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.4), redMat);
+    hat.position.set(0, 1.3, 0);
+    hat.rotation.x = -0.2;
+    group.add(hat);
 
     return group;
 };
 
-const createSantaGroup = () => {
+const createGiftBoxes = () => {
+    const group = new THREE.Group();
+    const colors = [COLORS.candy_red, COLORS.gold, 0x42A5F5, 0x66BB6A];
+    
+    for(let i=0; i<4; i++) {
+        const size = 0.3 + Math.random()*0.2;
+        const box = new THREE.Mesh(new THREE.BoxGeometry(size, size, size), new THREE.MeshStandardMaterial({ color: colors[i % colors.length] }));
+        box.position.set((Math.random()-0.5)*1.5, size/2, (Math.random()-0.5)*1.5);
+        box.rotation.y = Math.random();
+        box.castShadow = true;
+        group.add(box);
+    }
+    return group;
+};
+
+const createPlayer = () => {
+    const group = new THREE.Group();
+    const bodyMat = new THREE.MeshStandardMaterial({ color: COLORS.player });
+    const skinMat = new THREE.MeshStandardMaterial({ color: COLORS.player_skin });
+    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+    const body = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.7, 8), bodyMat);
+    body.position.y = 0.35;
+    body.castShadow = true;
+    
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), skinMat);
+    head.position.y = 0.8;
+    
+    const hat = new THREE.Mesh(new THREE.ConeGeometry(0.23, 0.4), bodyMat);
+    hat.position.y = 1.05;
+    const pompom = new THREE.Mesh(new THREE.SphereGeometry(0.06), whiteMat);
+    pompom.position.y = 1.25;
+    
+    const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.06, 6, 12), new THREE.MeshStandardMaterial({color: 0x4CAF50}));
+    scarf.rotation.x = Math.PI/2;
+    scarf.position.y = 0.65;
+    
+    group.add(body, head, hat, pompom, scarf);
+    return group;
+};
+
+const createAnimalMesh = (type: string) => {
+    switch(type) {
+        case 'CAT_BLUE': return createBlueCat();
+        case 'CAT_RAGDOLL': return createRagdoll();
+        case 'CAT_BLACK': return createBlackCat();
+        case 'DOG_TEDDY': return createTeddyDog();
+        default: return createBlueCat();
+    }
+};
+
+const createMarker = () => {
+    const group = new THREE.Group();
+    const star = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.25),
+        new THREE.MeshBasicMaterial({ color: COLORS.marker_glow })
+    );
+    star.scale.set(1, 1, 0.4); 
+    star.position.y = 2.5; 
+    group.add(star);
+
+    const ring = new THREE.Mesh(
+        new THREE.RingGeometry(0.5, 0.7, 32),
+        new THREE.MeshBasicMaterial({ color: COLORS.marker_ring, transparent: true, opacity: 0.6, side: THREE.DoubleSide })
+    );
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.05;
+    group.add(ring);
+    return group;
+};
+
+const createHeartEffect = () => {
+    const group = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({ color: COLORS.candy_red, emissive: 0x880000 });
+    const c = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat);
+    c.rotation.z = Math.PI / 4;
+    c.rotation.y = Math.PI / 4;
+    group.add(c);
+    
+    group.position.set(0, 2.0, 0);
+    group.scale.set(0, 0, 0); // Start hidden
+    return group;
+};
+
+// --- MINI AVATAR COMPONENT ---
+
+const AnimalAvatar: React.FC<{ type: string }> = ({ type }) => {
+    const mountRef = useRef<HTMLDivElement>(null);
+    const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
+
+    useEffect(() => {
+        if (!mountRef.current) return;
+
+        // Scene Setup
+        const scene = new THREE.Scene();
+        // Transparent background
+        
+        // Lighting similar to game
+        const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+        const dirLight = new THREE.DirectionalLight(0xfffce3, 1.5);
+        dirLight.position.set(5, 5, 5);
+        scene.add(ambient, dirLight);
+
+        // Camera Setup (Portrait mode)
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
+        camera.position.set(2, 2, 2);
+        camera.lookAt(0, 0.35, 0); // Focus on animal center
+        camera.zoom = 1.0;
+        camera.updateProjectionMatrix();
+
+        // Renderer
+        const newRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        newRenderer.setSize(100, 100); // Small fixed size
+        newRenderer.setPixelRatio(window.devicePixelRatio);
+        mountRef.current.appendChild(newRenderer.domElement);
+        setRenderer(newRenderer);
+
+        // Create Mesh
+        let mesh;
+        switch(type) {
+            case 'CAT_BLUE': mesh = createBlueCat(); break;
+            case 'CAT_RAGDOLL': mesh = createRagdoll(); break;
+            case 'CAT_BLACK': mesh = createBlackCat(); break;
+            case 'DOG_TEDDY': mesh = createTeddyDog(); break;
+        }
+
+        if (mesh) {
+            // Adjust mesh for portrait
+            mesh.scale.setScalar(1.2);
+            scene.add(mesh);
+        }
+
+        // Animation Loop
+        let frameId: number;
+        const animate = () => {
+            frameId = requestAnimationFrame(animate);
+            if (mesh) {
+                mesh.rotation.y += 0.015; // Slow spin
+            }
+            newRenderer.render(scene, camera);
+        };
+        animate();
+
+        return () => {
+            cancelAnimationFrame(frameId);
+            newRenderer.dispose();
+            if (mountRef.current) mountRef.current.innerHTML = '';
+        };
+    }, [type]);
+
+    return <div ref={mountRef} className="w-[100px] h-[100px]" />;
+};
+
+// --- MAIN GAMECANVAS COMPONENT ---
+
+const GameCanvas: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Game Logic State
+  const [gameState, setGameState] = useState<GameState>({
+    isPlaying: false,
+    isWon: false,
+    envelopeOpen: false,
+    letterContent: null,
+    loadingLetter: false,
+    score: 0
+  });
+
+  const [showSuccessUI, setShowSuccessUI] = useState(false);
+
+  // Joystick State for UI
+  const [joystickState, setJoystickState] = useState({
+    active: false,
+    cx: 0, cy: 0, kx: 0, ky: 0
+  });
+
+  // Blessing State
+  const [blessing, setBlessing] = useState<{text: string, subtext?: string, key: number, type?: 'santa' | 'normal'} | null>(null);
+  const blessingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Guide UI Ref (for high performance updates)
+  const guideRef = useRef<HTMLDivElement>(null);
+
+  // Refs for 3D engine
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const cameraRef = useRef<THREE.OrthographicCamera | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const playerMeshRef = useRef<THREE.Group | null>(null);
+  const animalsRef = useRef<Map<string, { mesh: THREE.Group, marker: THREE.Group, light: THREE.PointLight, heart: THREE.Group, data: any }>>(new Map());
+  const particlesRef = useRef<THREE.Points | null>(null);
+  const smokeParticlesRef = useRef<THREE.Group | null>(null); 
+  const exitRef = useRef<THREE.Group | null>(null);
+  const winTriggeredRef = useRef<boolean>(false);
+  const explosionsRef = useRef<{group: THREE.Group, particles: {mesh: THREE.Mesh, velocity: THREE.Vector3, life: number}[], gravity: number}[]>([]);
+  const snowDomeRef = useRef<THREE.Mesh | null>(null);
+  
+  // Santa & Gifts Refs
+  const santaRef = useRef<THREE.Group | null>(null);
+  const giftsRef = useRef<THREE.Group | null>(null);
+  const giftsVisibleRef = useRef<boolean>(false);
+  
+  // Phase: 'HIDDEN' | 'ARRIVING' | 'PARKED'
+  const santaStateRef = useRef({ phase: 'HIDDEN', progress: 0, startPos: new THREE.Vector3(), endPos: new THREE.Vector3() });
+  const prevRescuedRef = useRef(0);
+  
+  // Camera State (Smoothed Focus & Zoom)
+  const cameraStateRef = useRef({
+      target: new THREE.Vector3(0, 0, 8),
+      currentZoom: 1.0
+  });
+
+  // Zoom Animation State (Rescue Bump)
+  const zoomStateRef = useRef({ active: false, startTime: 0, duration: 1500, peak: 1.20 });
+
+  const inputRef = useRef<InputState>({ 
+    left: false, right: false, up: false, down: false, 
+    vector: { x: 0, y: 0 } 
+  });
+  
+  const playerPosRef = useRef({ x: 0, z: 8, moving: false });
+  const trailRef = useRef<{x: number, z: number}[]>([]);
+  const frameIdRef = useRef<number>(0);
+
+  // --- RESTART LOGIC ---
+  const handleRestart = () => {
+    // 1. Reset React State
+    setGameState({
+        isPlaying: true, 
+        isWon: false,
+        envelopeOpen: false,
+        letterContent: null,
+        loadingLetter: false,
+        score: 0
+    });
+    setShowSuccessUI(false);
+    setBlessing(null);
+    if (guideRef.current) guideRef.current.style.display = 'none';
+
+    // 2. Reset Logic Refs
+    playerPosRef.current = { x: 0, z: 8, moving: false };
+    inputRef.current = { left: false, right: false, up: false, down: false, vector: { x: 0, y: 0 } };
+    trailRef.current = [];
+    winTriggeredRef.current = false;
+    giftsVisibleRef.current = false;
+    prevRescuedRef.current = 0;
+    
+    santaStateRef.current = { phase: 'HIDDEN', progress: 0, startPos: new THREE.Vector3(), endPos: new THREE.Vector3() };
+    cameraStateRef.current = { target: new THREE.Vector3(0, 0, 8), currentZoom: 1.0 };
+    zoomStateRef.current = { active: false, startTime: 0, duration: 1500, peak: 1.20 };
+    
+    // Reset Fog
+    if (sceneRef.current) {
+        sceneRef.current.fog = new THREE.Fog(COLORS.background, 30, 80);
+    }
+
+    // 3. Reset 3D Positions
+    if (playerMeshRef.current) {
+        playerMeshRef.current.position.set(0, 0, 8);
+        playerMeshRef.current.rotation.set(0, 0, 0);
+    }
+    if (santaRef.current) santaRef.current.position.set(0, -100, 0);
+    if (giftsRef.current) giftsRef.current.position.set(0, -100, 0);
+
+    // 4. Reset Animals
+    const configEntries = Object.entries(ANIMAL_CONFIGS);
+    let idx = 0;
+    animalsRef.current.forEach((animal) => {
+         const angle = (idx / configEntries.length) * Math.PI * 2 + 1.0;
+         const dist = 7 + Math.random() * 3; 
+         animal.mesh.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
+         animal.mesh.rotation.y = Math.random() * Math.PI * 2;
+         
+         animal.data.isRescued = false;
+         if(animal.heart) animal.heart.visible = false;
+         if(animal.marker) animal.marker.visible = true;
+         if(animal.light) animal.light.intensity = 1.5;
+         idx++;
+    });
+  };
+
+  const handleOpenGift = () => {
+      setShowSuccessUI(false);
+      setGameState(prev => ({...prev, isWon: true, envelopeOpen: true }));
+      playMusicBoxTune();
+  };
+
+  // --- ASSET GENERATION (Component Scope Functions) ---
+  
+  const createDecoratedTree = (scale = 1, isGrand = false) => {
+    const group = new THREE.Group();
+    const levels = isGrand ? 6 : 3;
+    const opacity = isGrand ? 0.9 : 0.75; 
+    
+    const baseMat = new THREE.MeshStandardMaterial({
+        color: COLORS.tree_dark,
+        flatShading: true,
+        roughness: 0.8,
+        transparent: true,
+        opacity: opacity,
+    });
+    
+    if (isGrand) {
+        baseMat.color = new THREE.Color(0x2E8B57);
+        baseMat.roughness = 0.2;
+        baseMat.metalness = 0.1;
+        baseMat.emissive = new THREE.Color(0x003311);
+        baseMat.emissiveIntensity = 0.3;
+    }
+
+    const secondaryMat = baseMat.clone();
+    secondaryMat.color = new THREE.Color(COLORS.tree_light);
+    if (!isGrand) {
+        secondaryMat.opacity = opacity; 
+        secondaryMat.transparent = true;
+    }
+
+    for(let i=0; i<levels; i++) {
+        const t = i / levels;
+        const radius = isGrand ? (1.6 - t * 1.5) : (0.8 - i * 0.15);
+        const height = isGrand ? 1.3 : 1.0;
+        const y = isGrand ? (0.6 + i * 1.0) : (0.6 + i * 0.6);
+        const mat = i % 2 === 0 ? baseMat : secondaryMat;
+        
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(radius * scale, height * scale, 8), mat);
+        cone.position.y = y * scale;
+        cone.castShadow = true;
+        cone.receiveShadow = true;
+        group.add(cone);
+
+        const ornDensity = isGrand ? 0.9 : 0.3;
+        const shouldDecorate = isGrand || Math.random() < ornDensity;
+        
+        if (shouldDecorate) {
+            const ornCount = isGrand ? 8 : 3;
+            for(let j=0; j<ornCount; j++) {
+                const angle = (j / ornCount) * Math.PI * 2 + (i * 0.5);
+                const rOffset = radius * 0.85; 
+                const ox = Math.cos(angle) * rOffset * scale;
+                const oz = Math.sin(angle) * rOffset * scale;
+                const oy = (y - height * 0.35) * scale;
+                
+                const getDeterministicRand = (seedOffset: number) => {
+                    if (!isGrand) return Math.random();
+                    const x = i * 13 + j * 7 + seedOffset;
+                    return Math.abs(Math.sin(x * 12.9898));
+                };
+
+                let type = 0;
+                if (isGrand) {
+                    const r = getDeterministicRand(0);
+                    if (r > 0.7) type = 1; 
+                    else if (r > 0.4) type = 2; 
+                }
+
+                let ornament;
+                if (type === 0) { // BALL
+                    const rCol = getDeterministicRand(1);
+                    const ornColor = rCol > 0.6 ? COLORS.ornament_gold : (rCol > 0.5 ? COLORS.ornament_red : COLORS.ornament_blue);
+                    ornament = new THREE.Mesh(new THREE.SphereGeometry(0.12 * scale, 6, 6), new THREE.MeshStandardMaterial({ color: ornColor, roughness: 0.3, metalness: 0.4 }));
+                } else if (type === 1) { // STAR
+                    ornament = new THREE.Mesh(new THREE.OctahedronGeometry(0.1 * scale), new THREE.MeshStandardMaterial({ color: COLORS.gold, emissive: COLORS.gold, emissiveIntensity: 0.5 }));
+                } else { // LIGHT
+                    ornament = new THREE.Mesh(new THREE.SphereGeometry(0.08 * scale, 4, 4), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffee, emissiveIntensity: 2.0 }));
+                }
+                ornament.position.set(ox, oy, oz);
+                group.add(ornament);
+            }
+        }
+    }
+
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.2 * scale, 0.3 * scale, 0.8 * scale, 6), new THREE.MeshStandardMaterial({ color: COLORS.wood }));
+    trunk.position.y = 0.4 * scale;
+    trunk.castShadow = true;
+    group.add(trunk);
+    return group;
+  };
+
+  const createRoundBush = () => {
+    const group = new THREE.Group();
+    const radius = 0.35 + Math.random() * 0.15;
+    
+    // Trunk (small)
+    const trunk = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius * 0.2, radius * 0.2, 0.3, 6),
+        new THREE.MeshStandardMaterial({ color: COLORS.wood })
+    );
+    trunk.position.y = 0.15;
+    
+    // Leaves (Round - Dodecahedron for low poly style)
+    const mat = new THREE.MeshStandardMaterial({ color: COLORS.tree_dark, flatShading: true, roughness: 0.8 });
+    const leaves = new THREE.Mesh(new THREE.DodecahedronGeometry(radius), mat);
+    leaves.position.y = 0.15 + radius * 0.75;
+    leaves.castShadow = true;
+    
+    // Snow Cap (Random chance)
+    if (Math.random() > 0.4) {
+        const snowMat = new THREE.MeshStandardMaterial({ color: COLORS.snow, flatShading: true });
+        const snow = new THREE.Mesh(new THREE.DodecahedronGeometry(radius * 0.8), snowMat);
+        snow.position.y = leaves.position.y + radius * 0.35;
+        snow.scale.y = 0.5; // Flattened
+        group.add(snow);
+    }
+
+    group.add(trunk, leaves);
+    group.castShadow = true;
+    return group;
+  };
+
+  const createSantaGroup = () => {
     const group = new THREE.Group();
     const content = new THREE.Group();
     
@@ -931,63 +1316,98 @@ const createSantaGroup = () => {
       return group;
   };
 
-const createPlayer = () => {
-    const group = new THREE.Group();
-    const bodyMat = new THREE.MeshStandardMaterial({ color: COLORS.player });
-    const skinMat = new THREE.MeshStandardMaterial({ color: COLORS.player_skin });
-    const whiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const createCabin = () => {
+      const group = new THREE.Group();
+      const walls = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2, 2), new THREE.MeshStandardMaterial({ color: COLORS.wood, flatShading: true }));
+      walls.position.y = 1;
+      walls.castShadow = true;
+      walls.receiveShadow = true;
 
-    const body = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.7, 8), bodyMat);
-    body.position.y = 0.35;
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(2.2, 1.2, 4), new THREE.MeshStandardMaterial({ color: COLORS.roof, flatShading: true }));
+      roof.position.y = 2.6;
+      roof.rotation.y = Math.PI / 4;
+      roof.scale.set(1, 1, 0.8);
+      roof.castShadow = true;
+
+      const snowRoof = new THREE.Mesh(new THREE.ConeGeometry(2.1, 1.0, 4), new THREE.MeshStandardMaterial({ color: COLORS.snow }));
+      snowRoof.position.y = 2.75;
+      snowRoof.rotation.y = Math.PI / 4;
+      snowRoof.scale.set(0.95, 0.95, 0.75);
+
+      const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.8, 0.4), new THREE.MeshStandardMaterial({ color: COLORS.chimney }));
+      chimney.position.set(0.6, 2.5, 0.4);
+
+      const door = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.1), new THREE.MeshStandardMaterial({ color: 0x3E2723 }));
+      door.position.set(0, 0.6, 1.0);
+
+      const windowFrame = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.1), new THREE.MeshStandardMaterial({ color: 0x3E2723 }));
+      windowFrame.position.set(0.8, 1.2, 1.0);
+      
+      const windowGlass = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), new THREE.MeshBasicMaterial({ color: COLORS.window_light }));
+      windowGlass.position.set(0.8, 1.2, 1.06);
+
+      const houseLight = new THREE.PointLight(COLORS.window_light, 1, 5);
+      houseLight.position.set(0.8, 1.2, 1.5);
+
+      group.add(walls, roof, snowRoof, chimney, door, windowFrame, windowGlass, houseLight);
+      return group;
+  };
+
+  const createSnowman = () => {
+      const group = new THREE.Group();
+      const b1 = new THREE.Mesh(new THREE.SphereGeometry(0.4), new THREE.MeshStandardMaterial({color: COLORS.snow}));
+      b1.position.y = 0.3;
+      const b2 = new THREE.Mesh(new THREE.SphereGeometry(0.28), new THREE.MeshStandardMaterial({color: COLORS.snow}));
+      b2.position.y = 0.85;
+      const b3 = new THREE.Mesh(new THREE.SphereGeometry(0.2), new THREE.MeshStandardMaterial({color: COLORS.snow}));
+      b3.position.y = 1.25;
+      const hat = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.3), new THREE.MeshStandardMaterial({color: 0x333333}));
+      hat.position.y = 1.5;
+      const nose = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.2), new THREE.MeshStandardMaterial({color: COLORS.candy_red}));
+      nose.geometry.rotateX(Math.PI/2);
+      nose.position.set(0, 1.25, 0.2);
+      group.add(b1, b2, b3, hat, nose);
+      group.castShadow = true;
+      return group;
+  };
+
+  const createCandyCane = () => {
+      const group = new THREE.Group();
+      const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 1.2), new THREE.MeshStandardMaterial({ color: COLORS.candy_white }));
+      stick.position.y = 0.6;
+      const stripe1 = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.02, 4, 10), new THREE.MeshStandardMaterial({ color: COLORS.candy_red }));
+      stripe1.position.y = 0.3;
+      stripe1.rotation.x = Math.PI/2;
+      const stripe2 = stripe1.clone(); stripe2.position.y = 0.6;
+      const stripe3 = stripe1.clone(); stripe3.position.y = 0.9;
+      const top = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.05, 6, 12, Math.PI), new THREE.MeshStandardMaterial({ color: COLORS.candy_white }));
+      top.position.set(0.15, 1.2, 0);
+      group.add(stick, stripe1, stripe2, stripe3, top);
+      return group;
+  };
+
+  const createPlayer = () => {
+    const group = new THREE.Group();
+    const body = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.9, 8), new THREE.MeshStandardMaterial({ color: COLORS.player, flatShading: true }));
+    body.position.y = 0.45;
     body.castShadow = true;
-    
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), skinMat);
-    head.position.y = 0.8;
-    
-    const hat = new THREE.Mesh(new THREE.ConeGeometry(0.23, 0.4), bodyMat);
-    hat.position.y = 1.05;
-    const pompom = new THREE.Mesh(new THREE.SphereGeometry(0.06), whiteMat);
-    pompom.position.y = 1.25;
-    
-    const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.06, 6, 12), new THREE.MeshStandardMaterial({color: 0x4CAF50}));
-    scarf.rotation.x = Math.PI/2;
-    scarf.position.y = 0.65;
-    
-    group.add(body, head, hat, pompom, scarf);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), new THREE.MeshStandardMaterial({ color: COLORS.player_skin, flatShading: true }));
+    head.position.y = 1.0;
+    head.castShadow = true;
+    const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.12, 6, 8), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+    scarf.position.y = 0.85;
+    scarf.rotation.x = Math.PI / 2;
+    const hat = new THREE.Mesh(new THREE.ConeGeometry(0.36, 0.6, 8), new THREE.MeshStandardMaterial({ color: COLORS.player, flatShading: true }));
+    hat.position.y = 1.35;
+    hat.rotation.x = -0.2;
+    const pom = new THREE.Mesh(new THREE.SphereGeometry(0.12), new THREE.MeshStandardMaterial({color: 0xffffff}));
+    pom.position.set(0, 1.6, -0.15);
+    group.add(body, head, hat, scarf, pom);
+    group.scale.set(1.3, 1.3, 1.3); 
     return group;
-};
+  };
 
-const createAnimalMesh = (type: string) => {
-    switch(type) {
-        case 'CAT_BLUE': return createBlueCat();
-        case 'CAT_RAGDOLL': return createRagdoll();
-        case 'CAT_BLACK': return createBlackCat();
-        case 'DOG_TEDDY': return createTeddyDog();
-        default: return createBlueCat();
-    }
-};
-
-const createMarker = () => {
-    const group = new THREE.Group();
-    const star = new THREE.Mesh(
-        new THREE.OctahedronGeometry(0.25),
-        new THREE.MeshBasicMaterial({ color: COLORS.marker_glow })
-    );
-    star.scale.set(1, 1, 0.4); 
-    star.position.y = 2.5; 
-    group.add(star);
-
-    const ring = new THREE.Mesh(
-        new THREE.RingGeometry(0.5, 0.7, 32),
-        new THREE.MeshBasicMaterial({ color: COLORS.marker_ring, transparent: true, opacity: 0.6, side: THREE.DoubleSide })
-    );
-    ring.rotation.x = -Math.PI / 2;
-    ring.position.y = 0.05;
-    group.add(ring);
-    return group;
-};
-
-const createHeartEffect = () => {
+  const createHeartEffect = () => {
     const group = new THREE.Group();
     const mat = new THREE.MeshStandardMaterial({ color: COLORS.candy_red, emissive: 0x880000 });
     const c = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat);
@@ -998,211 +1418,8 @@ const createHeartEffect = () => {
     group.position.set(0, 2.0, 0);
     group.scale.set(0, 0, 0); // Start hidden
     return group;
-};
-
-// --- MINI AVATAR COMPONENT ---
-
-const AnimalAvatar: React.FC<{ type: string }> = ({ type }) => {
-    const mountRef = useRef<HTMLDivElement>(null);
-    const [renderer, setRenderer] = useState<THREE.WebGLRenderer | null>(null);
-
-    useEffect(() => {
-        if (!mountRef.current) return;
-
-        // Scene Setup
-        const scene = new THREE.Scene();
-        // Transparent background
-        
-        // Lighting similar to game
-        const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-        const dirLight = new THREE.DirectionalLight(0xfffce3, 1.5);
-        dirLight.position.set(5, 5, 5);
-        scene.add(ambient, dirLight);
-
-        // Camera Setup (Portrait mode)
-        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 20);
-        camera.position.set(2, 2, 2);
-        camera.lookAt(0, 0.35, 0); // Focus on animal center
-        camera.zoom = 1.0;
-        camera.updateProjectionMatrix();
-
-        // Renderer
-        const newRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        newRenderer.setSize(100, 100); // Small fixed size
-        newRenderer.setPixelRatio(window.devicePixelRatio);
-        mountRef.current.appendChild(newRenderer.domElement);
-        setRenderer(newRenderer);
-
-        // Create Mesh
-        let mesh;
-        switch(type) {
-            case 'CAT_BLUE': mesh = createBlueCat(); break;
-            case 'CAT_RAGDOLL': mesh = createRagdoll(); break;
-            case 'CAT_BLACK': mesh = createBlackCat(); break;
-            case 'DOG_TEDDY': mesh = createTeddyDog(); break;
-        }
-
-        if (mesh) {
-            // Adjust mesh for portrait
-            mesh.scale.setScalar(1.2);
-            scene.add(mesh);
-        }
-
-        // Animation Loop
-        let frameId: number;
-        const animate = () => {
-            frameId = requestAnimationFrame(animate);
-            if (mesh) {
-                mesh.rotation.y += 0.015; // Slow spin
-            }
-            newRenderer.render(scene, camera);
-        };
-        animate();
-
-        return () => {
-            cancelAnimationFrame(frameId);
-            newRenderer.dispose();
-            if (mountRef.current) mountRef.current.innerHTML = '';
-        };
-    }, [type]);
-
-    return <div ref={mountRef} className="w-[100px] h-[100px]" />;
-};
-
-// --- MAIN GAMECANVAS COMPONENT ---
-
-const GameCanvas: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Game Logic State
-  const [gameState, setGameState] = useState<GameState>({
-    isPlaying: false,
-    isWon: false,
-    envelopeOpen: false,
-    letterContent: null,
-    loadingLetter: false,
-    score: 0
-  });
-
-  const [showSuccessUI, setShowSuccessUI] = useState(false);
-
-  // Joystick State for UI
-  const [joystickState, setJoystickState] = useState({
-    active: false,
-    cx: 0, cy: 0, kx: 0, ky: 0
-  });
-
-  // Blessing State
-  const [blessing, setBlessing] = useState<{text: string, subtext?: string, key: number, type?: 'santa' | 'normal'} | null>(null);
-  const blessingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Guide UI Ref (for high performance updates)
-  const guideRef = useRef<HTMLDivElement>(null);
-
-  // Refs for 3D engine
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const cameraRef = useRef<THREE.OrthographicCamera | null>(null);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-  const playerMeshRef = useRef<THREE.Group | null>(null);
-  const animalsRef = useRef<Map<string, { mesh: THREE.Group, marker: THREE.Group, light: THREE.PointLight, heart: THREE.Group, data: any }>>(new Map());
-  const particlesRef = useRef<THREE.Points | null>(null);
-  const smokeParticlesRef = useRef<THREE.Group | null>(null); 
-  const exitRef = useRef<THREE.Group | null>(null);
-  const winTriggeredRef = useRef<boolean>(false);
-  const explosionsRef = useRef<{group: THREE.Group, particles: {mesh: THREE.Mesh, velocity: THREE.Vector3, life: number}[], gravity: number}[]>([]);
-  const snowDomeRef = useRef<THREE.Mesh | null>(null);
-  
-  // Santa & Gifts Refs
-  const santaRef = useRef<THREE.Group | null>(null);
-  const giftsRef = useRef<THREE.Group | null>(null);
-  const giftsVisibleRef = useRef<boolean>(false);
-  
-  // Phase: 'HIDDEN' | 'ARRIVING' | 'PARKED'
-  const santaStateRef = useRef({ phase: 'HIDDEN', progress: 0, startPos: new THREE.Vector3(), endPos: new THREE.Vector3() });
-  const prevRescuedRef = useRef(0);
-  
-  // Camera State (Smoothed Focus & Zoom)
-  const cameraStateRef = useRef({
-      target: new THREE.Vector3(0, 0, 8),
-      currentZoom: 1.0
-  });
-
-  // Zoom Animation State (Rescue Bump)
-  const zoomStateRef = useRef({ active: false, startTime: 0, duration: 1500, peak: 1.20 });
-
-  const inputRef = useRef<InputState>({ 
-    left: false, right: false, up: false, down: false, 
-    vector: { x: 0, y: 0 } 
-  });
-  
-  const playerPosRef = useRef({ x: 0, z: 8, moving: false });
-  const trailRef = useRef<{x: number, z: number}[]>([]);
-  const frameIdRef = useRef<number>(0);
-
-  // --- RESTART LOGIC ---
-  const handleRestart = () => {
-    // 1. Reset React State
-    setGameState({
-        isPlaying: true, 
-        isWon: false,
-        envelopeOpen: false,
-        letterContent: null,
-        loadingLetter: false,
-        score: 0
-    });
-    setShowSuccessUI(false);
-    setBlessing(null);
-    if (guideRef.current) guideRef.current.style.display = 'none';
-
-    // 2. Reset Logic Refs
-    playerPosRef.current = { x: 0, z: 8, moving: false };
-    inputRef.current = { left: false, right: false, up: false, down: false, vector: { x: 0, y: 0 } };
-    trailRef.current = [];
-    winTriggeredRef.current = false;
-    giftsVisibleRef.current = false;
-    prevRescuedRef.current = 0;
-    
-    santaStateRef.current = { phase: 'HIDDEN', progress: 0, startPos: new THREE.Vector3(), endPos: new THREE.Vector3() };
-    cameraStateRef.current = { target: new THREE.Vector3(0, 0, 8), currentZoom: 1.0 };
-    zoomStateRef.current = { active: false, startTime: 0, duration: 1500, peak: 1.20 };
-    
-    // Reset Fog
-    if (sceneRef.current) {
-        sceneRef.current.fog = new THREE.Fog(COLORS.background, 30, 80);
-    }
-
-    // 3. Reset 3D Positions
-    if (playerMeshRef.current) {
-        playerMeshRef.current.position.set(0, 0, 8);
-        playerMeshRef.current.rotation.set(0, 0, 0);
-    }
-    if (santaRef.current) santaRef.current.position.set(0, -100, 0);
-    if (giftsRef.current) giftsRef.current.position.set(0, -100, 0);
-
-    // 4. Reset Animals
-    const configEntries = Object.entries(ANIMAL_CONFIGS);
-    let idx = 0;
-    animalsRef.current.forEach((animal) => {
-         const angle = (idx / configEntries.length) * Math.PI * 2 + 1.0;
-         const dist = 7 + Math.random() * 3; 
-         animal.mesh.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
-         animal.mesh.rotation.y = Math.random() * Math.PI * 2;
-         
-         animal.data.isRescued = false;
-         if(animal.heart) animal.heart.visible = false;
-         if(animal.marker) animal.marker.visible = true;
-         if(animal.light) animal.light.intensity = 1.5;
-         idx++;
-    });
   };
 
-  const handleOpenGift = () => {
-      setShowSuccessUI(false);
-      setGameState(prev => ({...prev, isWon: true, envelopeOpen: true }));
-      playMusicBoxTune();
-  };
-
-  // --- COMPONENT SCOPED HELPERS ---
   const createExplosion = (pos: THREE.Vector3, colorOverride?: string | number) => {
     if (!sceneRef.current) return;
     const group = new THREE.Group();
@@ -1255,6 +1472,135 @@ const GameCanvas: React.FC = () => {
         particles.push({ mesh, velocity, life: 1.5 });
     }
     explosionsRef.current.push({ group, particles, gravity: 0.005 });
+  };
+
+  const createAnimalMesh = (type: string) => {
+      switch (type) {
+          case 'CAT_BLUE': return createBlueCat();
+          case 'CAT_RAGDOLL': return createRagdoll();
+          case 'CAT_BLACK': return createBlackCat();
+          case 'DOG_TEDDY': return createTeddyDog();
+          default: return createBlueCat();
+      }
+  };
+
+  const createMarker = () => {
+      const group = new THREE.Group();
+      const star = new THREE.Mesh(
+          new THREE.OctahedronGeometry(0.25),
+          new THREE.MeshBasicMaterial({ color: COLORS.marker_glow })
+      );
+      star.scale.set(1, 1, 0.4); 
+      star.position.y = 2.5; 
+      group.add(star);
+
+      const ring = new THREE.Mesh(
+          new THREE.RingGeometry(0.5, 0.7, 32),
+          new THREE.MeshBasicMaterial({ color: COLORS.marker_ring, transparent: true, opacity: 0.6, side: THREE.DoubleSide })
+      );
+      ring.rotation.x = -Math.PI / 2;
+      ring.position.y = 0.05;
+      group.add(ring);
+      return group;
+  };
+
+  const createSnowPile = () => {
+    const group = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({ color: COLORS.snow, roughness: 1, flatShading: true });
+    
+    // Main mound
+    const main = new THREE.Mesh(new THREE.SphereGeometry(0.4, 7, 6, 0, Math.PI * 2, 0, Math.PI/1.5), mat);
+    main.scale.set(1, 0.6, 1);
+    
+    // Side mound
+    const side = new THREE.Mesh(new THREE.SphereGeometry(0.25, 6, 5, 0, Math.PI * 2, 0, Math.PI/1.5), mat);
+    side.position.set(0.3, 0, 0.2);
+    side.scale.set(1, 0.5, 1);
+
+    group.add(main, side);
+    group.castShadow = true;
+    group.receiveShadow = true;
+    return group;
+  };
+
+  const createFirewoodPile = () => {
+    const group = new THREE.Group();
+    const woodMat = new THREE.MeshStandardMaterial({ color: COLORS.wood, roughness: 1, flatShading: true });
+    const snowMat = new THREE.MeshStandardMaterial({ color: COLORS.snow, roughness: 1 });
+    
+    const logGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.6, 5);
+    
+    // Log 1
+    const l1 = new THREE.Mesh(logGeo, woodMat);
+    l1.rotation.z = Math.PI / 2;
+    l1.rotation.y = Math.random() * 0.2;
+    l1.position.set(0, 0.08, 0.1);
+    
+    // Log 2
+    const l2 = new THREE.Mesh(logGeo, woodMat);
+    l2.rotation.z = Math.PI / 2;
+    l2.rotation.y = -Math.random() * 0.2;
+    l2.position.set(0, 0.08, -0.1);
+    
+    // Log 3 (Top)
+    const l3 = new THREE.Mesh(logGeo, woodMat);
+    l3.rotation.z = Math.PI / 2;
+    l3.position.set(0, 0.2, 0);
+
+    // Snow on top
+    const snow = new THREE.Mesh(new THREE.SphereGeometry(0.15, 5, 4, 0, Math.PI*2, 0, Math.PI/1.8), snowMat);
+    snow.position.set(0, 0.26, 0);
+    snow.scale.set(1, 0.5, 0.8);
+
+    group.add(l1, l2, l3, snow);
+    group.castShadow = true;
+    group.receiveShadow = true;
+    return group;
+  };
+  
+  // NEW: Mushroom
+  const createMushroom = () => {
+      const group = new THREE.Group();
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, 0.1), new THREE.MeshStandardMaterial({color: 0xF5F5DC}));
+      stem.position.y = 0.05;
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6, 0, Math.PI*2, 0, Math.PI/2), new THREE.MeshStandardMaterial({color: 0xD32F2F, roughness: 0.5}));
+      cap.position.y = 0.1;
+      cap.scale.y = 0.6;
+      
+      // Dots
+      const dotMat = new THREE.MeshBasicMaterial({color: 0xFFFFFF});
+      const d1 = new THREE.Mesh(new THREE.SphereGeometry(0.015), dotMat); d1.position.set(0.03, 0.13, 0.03);
+      const d2 = new THREE.Mesh(new THREE.SphereGeometry(0.012), dotMat); d2.position.set(-0.03, 0.14, -0.02);
+      
+      group.add(stem, cap, d1, d2);
+      group.castShadow = true;
+      return group;
+  };
+
+  // NEW: Winter Bush (Withered/Dry look with snow)
+  const createWinterBush = () => {
+      const group = new THREE.Group();
+      const mat = new THREE.MeshStandardMaterial({ color: 0x4E342E, flatShading: true }); // Dark brown for withered wood
+      const snowMat = new THREE.MeshStandardMaterial({ color: COLORS.snow });
+      
+      // Main branch cluster
+      const main = new THREE.Mesh(new THREE.DodecahedronGeometry(0.3), mat);
+      main.position.y = 0.2;
+      main.scale.set(1, 0.8, 1);
+      
+      // Snow cap
+      const snow = new THREE.Mesh(new THREE.DodecahedronGeometry(0.25), snowMat);
+      snow.position.y = 0.35;
+      snow.scale.y = 0.4;
+
+      // Small side branch
+      const side = new THREE.Mesh(new THREE.TetrahedronGeometry(0.2), mat);
+      side.position.set(0.25, 0.1, 0);
+      side.rotation.z = -0.5;
+
+      group.add(main, snow, side);
+      group.castShadow = true;
+      return group;
   };
 
   const createEnvironment = (scene: THREE.Scene) => {
@@ -2185,56 +2531,43 @@ const GameCanvas: React.FC = () => {
                                         <div className="absolute -top-12 left-1/2 w-[1px] h-12 bg-[#D4AF37]/40 z-0"></div>
                                         
                                         {/* Glass Bubble Container */}
-                                        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full shadow-[inset_0_-4px_6px_rgba(0,0,0,0.1),0_8px_15px_-3px_rgba(0,0,0,0.2)] bg-gradient-to-br from-white/80 to-white/40 border border-white/80 backdrop-blur-md overflow-hidden flex items-center justify-center z-10">
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50"></div>
-                                            <div className="scale-75 translate-y-2">
+                                        <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.1)] bg-gradient-to-b from-white/70 to-white/30 backdrop-blur-sm border border-white/80 overflow-hidden z-10 transition-transform duration-300 group-hover/item:scale-105 ring-2 ring-white/50">
+                                            {/* Inner Ring Glow */}
+                                            <div className={`absolute inset-0 rounded-full opacity-30 bg-gradient-to-tr ${pet.ring}`}></div>
+                                            
+                                            <div className="w-full h-full flex items-center justify-center pt-2 scale-90">
                                                 <AnimalAvatar type={pet.type} />
                                             </div>
-                                            {/* Shine Reflection */}
-                                            <div className="absolute top-2 left-3 w-3 h-1.5 bg-white rounded-full blur-[1px] opacity-90"></div>
+                                            
+                                            {/* Glass Reflection (Highlight) */}
+                                            <div className="absolute top-2 left-3 w-8 h-4 bg-white/70 rounded-full transform -rotate-45 blur-[2px]"></div>
+                                            <div className="absolute bottom-2 right-3 w-4 h-2 bg-white/50 rounded-full transform -rotate-45 blur-[1px]"></div>
                                         </div>
                                         
-                                        {/* Name Tag */}
-                                        <div className="mt-2 bg-[#F5F5DC] text-[#5D4037] text-xs font-bold px-3 py-1 rounded-full border border-[#D4AF37]/30 shadow-sm relative z-10">
+                                        {/* Tag */}
+                                        <span className="mt-2 text-[10px] md:text-xs font-bold text-slate-600 bg-white/90 backdrop-blur px-3 py-0.5 rounded-full shadow-sm border border-white/60 tracking-wider">
                                             {pet.label}
-                                        </div>
+                                        </span>
                                     </div>
                                 ))}
                             </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex flex-col gap-3 w-full max-w-[280px]">
-                                {!gameState.envelopeOpen ? (
-                                    <button 
-                                        onClick={handleOpenGift}
-                                        className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-[#D32F2F] to-[#B71C1C] px-8 py-4 shadow-[0_4px_0_#800000] active:shadow-none active:translate-y-[4px] transition-all"
-                                    >
-                                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-10"></div>
-                                        <span className="relative flex items-center justify-center gap-2 text-white font-black text-lg tracking-wider uppercase drop-shadow-md">
-                                            <span className="text-xl animate-bounce">💌</span> Open Letter
-                                        </span>
-                                    </button>
-                                ) : (
-                                    <div className="animate-fade-in w-full">
-                                        <div className="bg-[#FFF8E1] p-6 rounded-lg shadow-inner border border-[#D4AF37]/20 mb-4 font-serif text-[#3E2723] leading-relaxed relative">
-                                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-2xl text-[#D32F2F]">📌</div>
-                                            <p className="whitespace-pre-line text-sm md:text-base font-medium">
-                                                {gameState.letterContent || "Loading..."}
-                                            </p>
-                                            <div className="mt-4 text-right text-xs text-[#8D6E63] italic">
-                                                - Santa Claus
-                                            </div>
-                                        </div>
-                                        
-                                        <button 
-                                            onClick={handleRestart}
-                                            className="w-full bg-[#388E3C] hover:bg-[#2E7D32] text-white font-bold py-3 px-6 rounded-xl shadow-[0_4px_0_#1B5E20] active:shadow-none active:translate-y-[4px] transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <span>🔄</span> Play Again
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                            <p className="text-base md:text-lg font-handwriting font-bold text-slate-600 mb-6 italic tracking-wide">
+                                "All friends are safe & sound!"
+                            </p>
+                           
+                            {/* Premium Button */}
+                            <button 
+                               onClick={handleOpenGift}
+                               className="relative group overflow-hidden rounded-full shadow-[0_4px_14px_0_rgba(183,28,28,0.4)] bg-gradient-to-r from-[#D32F2F] to-[#B71C1C] hover:from-[#E53935] hover:to-[#C62828] transition-all duration-300 w-full px-8 py-3.5 border border-[#FFCDD2] active:scale-95"
+                            >
+                                <span className="relative z-10 flex items-center justify-center gap-2 text-white font-black tracking-[0.15em] text-xs md:text-sm uppercase shadow-black drop-shadow-md">
+                                    <span className="text-lg md:text-xl">📩</span>
+                                    Open Message
+                                </span>
+                                {/* Shine Animation */}
+                                <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 group-hover:animate-shine transition-all"></div>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -2242,60 +2575,99 @@ const GameCanvas: React.FC = () => {
           </div>
       )}
 
-      {/* Touch Controls */}
+      {gameState.envelopeOpen && (
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 z-50 p-6 backdrop-blur-sm animate-fade-in">
+            {/* Letter Container - Paper Style */}
+            <div className="relative w-full max-w-[340px] transform rotate-1 transition-all hover:rotate-0 duration-500 my-auto">
+                
+                {/* Envelope/Paper Body */}
+                <div className="relative bg-[#fdfbf7] rounded-[4px] shadow-[0_2px_2px_rgba(0,0,0,0.1),0_10px_20px_rgba(0,0,0,0.25)] overflow-hidden">
+                    
+                    {/* Paper Texture/Gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#fffefc] to-[#f4f1ea] opacity-100 pointer-events-none" />
+                    <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] pointer-events-none" />
+
+                    {/* Decorative Border (Inner) */}
+                    <div className="absolute inset-2 border border-[#D4AF37]/30 rounded-[2px] pointer-events-none" />
+                    
+                    {/* Top Right Stamp/Decoration */}
+                    <div className="absolute -top-3 -right-3 w-16 h-16 bg-[#e53935] shadow-md transform rotate-12 flex items-center justify-center rounded-sm z-10">
+                        <span className="text-white text-2xl filter drop-shadow">❄️</span>
+                         <div className="absolute inset-0 border-2 border-dashed border-white/50 rounded-sm m-1"></div>
+                    </div>
+                    
+                    {/* Ribbon Element */}
+                    <div className="absolute -top-4 -right-4 text-6xl transform rotate-12 drop-shadow-md z-20 opacity-0 hidden">🎀</div>
+
+                    {/* Content */}
+                    <div className="relative z-10 px-8 py-10 flex flex-col text-left">
+                        
+                        {/* Header: Merry Christmas */}
+                        <div className="w-full text-center mb-8 relative">
+                             <h3 className="text-xs font-black tracking-[0.25em] uppercase text-[#B71C1C] inline-block border-b-2 border-[#D4AF37]/40 pb-2">
+                                Merry Christmas
+                             </h3>
+                        </div>
+
+                        {/* Body Text - Handwritten Feel */}
+                        <div 
+                            className="font-serif-sc text-slate-800 text-[15px] leading-relaxed mb-10 drop-shadow-sm whitespace-pre-wrap font-medium tracking-wide"
+                            style={{ fontFamily: '"Noto Serif SC", serif' }}
+                        >
+                            {gameState.letterContent}
+                        </div>
+                        
+                        {/* Action Button */}
+                         <div className="w-full flex justify-center mt-2">
+                            <button 
+                                onClick={handleRestart}
+                                className="group relative bg-[#2E7D32] hover:bg-[#1B5E20] text-white text-[11px] font-bold py-3 px-10 rounded-full shadow-lg transition-all active:scale-95 tracking-[0.2em] uppercase border border-[#A5D6A7]/30 overflow-hidden"
+                            >
+                                <span className="relative z-10">Play Again</span>
+                                <div className="absolute top-0 -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 group-hover:animate-shine transition-all"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
+
       <div 
-        className="absolute bottom-12 left-12 w-32 h-32 rounded-full backdrop-blur-sm border border-white/20 touch-none z-30 hidden md:block lg:block"
-        style={{ backgroundColor: COLORS.joystick_bg }}
+        className="absolute bottom-12 left-1/2 transform -translate-x-1/2 w-48 h-48 z-10"
+        style={{ touchAction: 'none' }}
+        onTouchStart={handleJoystickStart}
+        onTouchMove={handleJoystickMove}
+        onTouchEnd={handleJoystickEnd}
         onMouseDown={handleJoystickStart}
         onMouseMove={handleJoystickMove}
         onMouseUp={handleJoystickEnd}
         onMouseLeave={handleJoystickEnd}
       >
-        {joystickState.active && (
-            <div 
-                className="absolute w-12 h-12 rounded-full shadow-lg"
-                style={{
-                    backgroundColor: COLORS.joystick_handle,
-                    left: joystickState.cx + joystickState.kx - 24,
-                    top: joystickState.cy + joystickState.ky - 24,
-                    pointerEvents: 'none'
-                }}
-            />
-        )}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-50 text-white text-xs font-bold">DRAG</div>
-      </div>
-      
-      {/* Mobile Full Screen Touch Area (Invisible) */}
-      <div 
-        className="absolute inset-0 z-20 md:hidden lg:hidden"
-        onTouchStart={handleJoystickStart}
-        onTouchMove={handleJoystickMove}
-        onTouchEnd={handleJoystickEnd}
-      />
-      
-      {/* Mobile Visual Joystick Indicator */}
-      {joystickState.active && (
-         <div 
-            className="absolute w-24 h-24 rounded-full border-2 border-white/30 z-30 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-sm"
-            style={{ left: joystickState.cx + 20, top: joystickState.cy + 20 }} 
-         >
-             <div 
-                className="absolute w-10 h-10 rounded-full bg-white/80 shadow-lg transform -translate-x-1/2 -translate-y-1/2"
-                style={{
-                    left: '50%',
-                    top: '50%',
-                    transform: `translate(calc(-50% + ${joystickState.kx}px), calc(-50% + ${joystickState.ky}px))`
-                }}
-             />
-         </div>
-      )}
+          <div className="absolute inset-4 rounded-full border border-white/20 bg-white/10 backdrop-blur-md shadow-lg flex items-center justify-center">
+             <div className="absolute top-1/2 left-4 right-4 h-px bg-white/10"></div>
+             <div className="absolute left-1/2 top-4 bottom-4 w-px bg-white/10"></div>
+          </div>
 
-      {/* Instructions / Credits */}
-      <div className="absolute bottom-4 right-4 text-white/60 text-xs md:text-sm font-bold text-right pointer-events-none z-10 drop-shadow-md">
-        <p>Use WASD / Arrows / Drag to Move</p>
-        <p className="opacity-70 mt-1">Design & Code by Gemini</p>
+          <div 
+            className="absolute w-16 h-16 rounded-full shadow-2xl bg-gradient-to-br from-white to-gray-200 border border-white flex items-center justify-center"
+            style={{ 
+                top: '50%', left: '50%', marginLeft: -32, marginTop: -32,
+                transform: `translate(${joystickState.kx}px, ${joystickState.ky}px)`,
+                transition: joystickState.active ? 'none' : 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+            }}
+          >
+              <div className="w-8 h-8 rounded-full bg-gray-100/50 shadow-inner backdrop-blur-sm"></div>
+          </div>
+          
+          <div 
+            className={`absolute -bottom-14 left-1/2 transform -translate-x-1/2 transition-all duration-300 pointer-events-none ${joystickState.active ? 'opacity-0 translate-y-2' : 'opacity-100 translate-y-0'}`}
+          >
+               <div className="bg-black/30 backdrop-blur-md text-white text-xs font-black tracking-[0.2em] px-4 py-2 rounded-full border border-white/40 shadow-[0_4px_10px_rgba(0,0,0,0.2)] animate-pulse whitespace-nowrap">
+                    DRAG TO MOVE
+               </div>
+          </div>
       </div>
-
     </div>
   );
 };

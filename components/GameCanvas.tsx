@@ -397,20 +397,21 @@ const createSnowCar = () => {
     cabin.castShadow = true;
 
     // Windows (Simplified)
+    // Adjusted coordinates to be relative to the cabin's local space and size
     const winFront = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.35), matWindow);
     winFront.rotation.y = Math.PI / 2;
-    winFront.position.set(0.51, 1.0, 0);
+    winFront.position.set(0.61, 0.05, 0); // Front face (X+)
     
     const winBack = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.35), matWindow);
     winBack.rotation.y = -Math.PI / 2;
-    winBack.position.set(-0.71, 1.0, 0);
+    winBack.position.set(-0.61, 0.05, 0); // Back face (X-)
 
     const winSideL = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.35), matWindow);
-    winSideL.position.set(-0.1, 1.0, 0.46);
+    winSideL.position.set(0, 0.05, 0.46); // Side face (Z+)
     
     const winSideR = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.35), matWindow);
     winSideR.rotation.y = Math.PI;
-    winSideR.position.set(-0.1, 1.0, -0.46);
+    winSideR.position.set(0, 0.05, -0.46); // Side face (Z-)
 
     cabin.add(winFront, winBack, winSideL, winSideR);
 
@@ -2666,6 +2667,15 @@ const GameCanvas: React.FC = () => {
                <div className="bg-black/30 backdrop-blur-md text-white text-xs font-black tracking-[0.2em] px-4 py-2 rounded-full border border-white/40 shadow-[0_4px_10px_rgba(0,0,0,0.2)] animate-pulse whitespace-nowrap">
                     DRAG TO MOVE
                </div>
+          </div>
+      </div>
+      
+      {/* Credit UI */}
+      <div className="absolute bottom-5 right-5 z-10 pointer-events-none">
+          <div className="bg-white/20 backdrop-blur-sm border border-white/30 px-3 py-1.5 rounded-xl shadow-sm">
+             <span className="font-serif-sc font-bold text-slate-700/80 text-[10px] tracking-[0.2em] uppercase">
+                 By Mimi
+             </span>
           </div>
       </div>
     </div>

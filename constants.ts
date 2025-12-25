@@ -1,4 +1,5 @@
-export const MOVE_SPEED = 0.12;
+
+export const MOVE_SPEED = 0.08;
 export const WORLD_SIZE = 12; // 12x12 Grid
 
 export const CANVAS_WIDTH = window.innerWidth; 
